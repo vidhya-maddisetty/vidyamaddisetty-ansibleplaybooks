@@ -1,0 +1,32 @@
+---
+# tasks file for sonar
+
+- name: Copy Package to remote
+  copy: src=sonarqube-5.0.1.zip dest=/etc mode=655
+- name: extract Archive
+  unarchive: src=sonarqube-5.0.1.zip dest={{ sonar_directory_path }} remote_src=yes
+- name: Configering Sonar
+  template: src=sonar.properties.j2 dest={{ sonar_directory_path }}/sonarqube-5.0.1/conf/sonar.properties owner=root group=root mode=655
+- name: Symlink sonar bin.
+  file:
+    src: /usr/local/sonar/bin/linux-x86-64/sonar.sh
+    dest: /usr/bin/sonar
+    state: link
+    
+
+- name: Add sonar as init script for service management.
+  file:
+    src: /usr/local/sonar/bin/linux-x86-64/sonar.sh
+    dest: /etc/init.d/sonar
+    state: link
+
+- name: Copy Sonar-scanner package to remote
+  copy: src=sonar-scanner-2.8.zip dest=/etc mode=655
+- name: extract archive
+  unarchive: src=sonar-scanner-2.8.zip  dest={{ sonar_directory_path }}
+- name: change configuration 
+  template: src=sonar-scanner.properties.j2 dest=/usr/local/sonar-scanner-2.8/conf/sonar-scanner.properties
+- name: Configure sonar-runner bash settings by copying script into profile.d.
+  copy:
+    src: sonar.sh
+    dest: /etc/profile.d/sonar.sh

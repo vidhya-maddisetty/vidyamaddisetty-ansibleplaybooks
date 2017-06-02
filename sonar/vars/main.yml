@@ -1,0 +1,5 @@
+---
+# vars file for sonar
+
+sonar_directory_path: "/usr/local"
+
