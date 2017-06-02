@@ -1,0 +1,7 @@
+---
+# vars file for maven
+
+
+maven_ubuntu_home: "/usr/lib/maven"
+
+ 

@@ -1,0 +1,30 @@
+---
+# tasks file for java
+
+- name: Copy Package to remote
+  copy: src=jdk-8u45-linux-x64.tar.gz dest=/usr/local  mode=755
+
+- name: UnArchive Package to Remote Machine
+  unarchive: src=jdk-8u45-linux-x64.tar.gz dest=/usr/lib/jvm  remote_src=yes
+
+- name: Set JAVA_HOME if configured.
+  template:
+    src: set_java_home.sh.j2
+    dest: /etc/profile.d/set_java_home.sh
+    mode: 0644
+  when: java_home is defined and java_home != ''
+
+- name: Install alternatives
+  command: /usr/sbin/update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.8.0_45/bin/java 1
+
+- name: Install alternatives
+  command: /usr/sbin/update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk1.8.0_45/bin/javac 1
+
+- name: set alternatives
+  command: sudo /usr/sbin/update-alternatives  --set java /usr/lib/jvm/jdk1.8.0_45/bin/java
+
+- name: set alternatives
+  command: sudo /usr/sbin/update-alternatives  --set javac /usr/lib/jvm/jdk1.8.0_45/bin/javac
+
+
+

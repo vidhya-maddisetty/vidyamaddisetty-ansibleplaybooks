@@ -1,0 +1,18 @@
+---
+- name: Ensures {{ maven_ubuntu_home }} dir exists
+  file: path={{ maven_ubuntu_home }} state=directory
+- name: Copy Package to remote
+  copy: src=apache-maven-3.5.0-bin.zip dest={{ maven_ubuntu_home }}  mode=755
+
+- name: UnArchive Package to Remote Machine
+  unarchive: src=apache-maven-3.5.0-bin.zip dest={{ maven_ubuntu_home }} remote_src=yes 
+- name: export path variables 
+  copy:
+    src: maven.sh
+    dest: /etc/profile.d/maven.sh
+
+- name: Create symbolic link 
+  file: src={{ maven_ubuntu_home }}/bin/mvn dest=/usr/bin/mvn state=link mode=755
+
+
+

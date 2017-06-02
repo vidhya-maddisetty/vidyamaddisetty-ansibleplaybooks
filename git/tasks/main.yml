@@ -1,0 +1,10 @@
+---
+# tasks file for git
+
+- name: Ensure git is installed (Debian).
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items: "{{ git_packages }}"
+  when: ansible_os_family == 'Debian'
+
