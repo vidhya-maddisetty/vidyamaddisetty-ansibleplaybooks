@@ -1,0 +1,5 @@
+---
+# handlers file for nexus
+- name: restart nexus
+  service: name=nexus state=restarted
+  sudo: yes

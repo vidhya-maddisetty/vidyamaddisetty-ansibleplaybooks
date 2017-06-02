@@ -1,0 +1,22 @@
+---
+# tasks file for mysql
+- name: install mysqldb
+  apt: package={{ item }} state=installed force=yes
+  with_items:
+  - mysql-server
+  - python-mysqldb
+- name: check version
+  command: mysql --version
+- name: check service status  
+  service: name=mysql state=started
+- name: add database
+  mysql_db: name=sonar state=present
+- name: granting permissions to database
+  mysql_user: name=sonar host=% priv=sonar.*:ALL password={{ lookup('password','credentials/dbpassword.txt') }}
+- name: Allow remote access
+  copy: src=../files/my.cnf dest=/etc/mysql/my.cnf owner=root group=root mode=0644
+  notify:
+  - restart mysql 
+
+ 
+  

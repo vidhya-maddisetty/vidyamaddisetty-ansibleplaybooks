@@ -1,0 +1,8 @@
+---
+# vars file for nexus
+
+nexus:
+  base_dir: /opt
+  home: /opt/nexus
+  data_dir: /data
+  

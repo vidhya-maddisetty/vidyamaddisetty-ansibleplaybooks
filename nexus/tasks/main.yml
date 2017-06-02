@@ -1,0 +1,54 @@
+---
+
+
+- name: Add nexus group
+  group: name=nexus state=present
+
+- name: Add nexus user
+  user: name=nexus group=nexus createhome=yes
+
+- name: Copy nexus package to target
+  copy: src=nexus-2.8.1-bundle.tar.gz dest={{ nexus.base_dir }}
+
+- name: Extract nexus package
+  unarchive: src=nexus-2.8.1-bundle.tar.gz dest={{ nexus.base_dir }} remote_src=yes
+
+- name: Set NEXUS_HOME environment variable
+  lineinfile: "dest=/etc/environment regexp='^export NEXUS_HOME.*' line='export NEXUS_HOME={{ nexus.home }}' insertbefore='^PATH.*'"
+
+- name: Change ownership of nexus folder to the nexus user and nexus group
+  file: path={{ nexus.base_dir }}/nexus-2.8.1-01 owner=nexus group=nexus recurse=yes
+
+- name: Move work directory to data directory
+  command: mv {{ nexus.base_dir}}/sonatype-work {{ nexus.data_dir }} creates={{ nexus.data_dir }}/sonatype-work
+
+- name: Change ownership of work directory to the nexus user and nexus group
+  file: path={{ nexus.data_dir }}/sonatype-work owner=nexus group=nexus recurse=yes
+
+- name: Change Nexus work directory in nexus.properties file
+  lineinfile: "dest=/opt/nexus-2.8.1-01/conf/nexus.properties regexp='^nexus-work=' line='nexus-work={{ nexus.data_dir }}/sonatype-work/nexus'"
+  
+- name: Change Nexus home in binary file
+  lineinfile: "dest=/opt/nexus-2.8.1-01/bin/nexus regexp='^NEXUS_HOME=' line='NEXUS_HOME={{ nexus.home }}'"
+
+- name: Change Nexus user in binary file
+  lineinfile: "dest=/opt/nexus-2.8.1-01/bin/nexus regexp='^#RUN_AS_USER=' line='RUN_AS_USER=nexus'"
+
+- name: Change Nexus piddir in binary file
+  lineinfile: "dest=/opt/nexus-2.8.1-01/bin/nexus regexp='^#PIDDIR=' line='PIDDIR=/home/nexus'"
+
+- name: Copy Nexus binary to /etc/init.d
+  command: "cp /opt/nexus-2.8.1-01/bin/nexus /etc/init.d/nexus creates=/etc/init.d/nexus"
+
+- name: Make Nexus script executable
+  file: path=/etc/init.d/nexus mode=755
+
+- name: wrapper conf file
+  template: src=wrapper.conf.j2 dest=/opt/nexus-2.8.1-01/bin/jsw/conf/wrapper.conf mode=755
+
+
+- name: Enable Nexus service
+  service: name=nexus enabled=yes
+  notify: restart nexus
+
+
